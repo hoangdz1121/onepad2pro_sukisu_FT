@@ -1,5 +1,4 @@
 name: oneplus_13T
-
 on:
   schedule:
     - cron: '0 22 * * *'
