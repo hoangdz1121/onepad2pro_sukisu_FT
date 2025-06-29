@@ -1,7 +1,7 @@
 name: oneplus_13T
 on:
   schedule:
-    - cron: '0 22 * * *'
+    - cron: '0 0 * * *'
 
 jobs:
   build:
