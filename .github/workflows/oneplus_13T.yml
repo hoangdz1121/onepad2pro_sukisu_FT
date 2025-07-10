@@ -296,8 +296,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-         name: Test:OnePlus13T Release SukiSU_${{ env.KSUVER }}
-         body: "此版本为启用O3优化的测试版，可能提升性能并降低功耗，但可能导致系统不稳定，请谨慎使用"
+         name: OnePlus13T Release SukiSU_${{ env.KSUVER }}
+         body: ""
          tag_name: v${{ github.run_number }}
          files: ./AnyKernel3/*.zip
         env:
