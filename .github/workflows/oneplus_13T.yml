@@ -5,7 +5,7 @@ on:
       enable_feature_x:
         description: "是否启用KPM"
         required: false
-        default:false
+        default: false
         type: boolean
   
   schedule:
