@@ -58,13 +58,6 @@ jobs:
          repo --trace sync -c -j$(nproc --all) --no-tags
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-
-      - name: Add BORE
-        run: |
-          cd kernel_workspace/kernel_platform
-          mkdir ~/bore
-          git clone --branch main --single-branch https://github.com/firelzrd/bore-scheduler.git ~/bore
-          patch -p1 < ~/bore/patches/stable/linux-6.6-bore/0001-* 
             
       - name: Set up SukiSU
         run: |
@@ -104,6 +97,23 @@ jobs:
            cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
            patch -p1 -F 3 < syscall_hooks.patch
            echo "完成"
+
+      - name: Apply BORE Scheduler Patch
+        run: |
+          cd kernel_workspace/kernel_platform
+          curl -LO https://raw.githubusercontent.com/44C38B8/bore-scheduler/tree/main/patches/stable/linux-6.6-bore/0001-linux6.6.97-bore-6.1.0.patch
+          cd common
+          patch -p1 < ../0001-linux6.6.97-bore-6.1.0.patch || (echo "BORE patch failed" && exit 1)
+          echo "BORE patch applied successfully"
+          
+      - name: Enable BORE Scheduler in defconfig
+        run: |
+          cd kernel_workspace/kernel_platform
+          DEFCONFIG=./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_SCHED_BORE=y" >> $DEFCONFIG
+          echo "CONFIG_MIN_BASE_SLICE_NS=2000000" >> $DEFCONFIG
+          echo "CONFIG_SYSCTL=y" >> $DEFCONFIG
+          echo "CONFIG_PROC_FS=y" >> $DEFCONFIG
       
       - name: Apply HMBird GKI patch
         run: |
