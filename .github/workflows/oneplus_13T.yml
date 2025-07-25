@@ -1,9 +1,15 @@
 name: oneplus_13T
 on:
   workflow_dispatch:
+    inputs:
+      enable_feature_x:
+        description: "是否启用KPM"
+        required: false
+        default:false
+        type: boolean
   
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 22 * * *'
 
 jobs:
   build:
@@ -234,6 +240,7 @@ jobs:
           git add -A && git commit -a -m "BUILD Kernel"
       
       - name: Add KPM Configuration Settings
+        if: ${{inputs.enable_feature_x}}
         run: |
           cd kernel_workspace/kernel_platform
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
