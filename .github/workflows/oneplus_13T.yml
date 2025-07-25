@@ -101,7 +101,7 @@ jobs:
       - name: Apply BORE Scheduler Patch
         run: |
           cd kernel_workspace/kernel_platform
-          curl -LO https://raw.githubusercontent.com/44C38B8/bore-scheduler/tree/main/patches/stable/linux-6.6-bore/0001-linux6.6.97-bore-6.1.0.patch
+          curl -LO https://raw.githubusercontent.com/44C38B8/bore-scheduler/main/patches/stable/linux-6.6-bore/0001-linux6.6.97-bore-6.1.0.patch
           cd common
           patch -p1 < ../0001-linux6.6.97-bore-6.1.0.patch || (echo "BORE patch failed" && exit 1)
           echo "BORE patch applied successfully"
