@@ -61,10 +61,10 @@ jobs:
 
       - name: Add BORE
         run: |
-          cd ~
-          git clone --branch main --single-branch https://github.com/firelzrd/bore-scheduler.git
           cd kernel_workspace/kernel_platform
-          patch -p1 < ~/bore-scheduler/patches/stable/linux-6.6-bore/0001-* 
+          mkdir ~/bore
+          git clone --branch main --single-branch https://github.com/firelzrd/bore-scheduler.git ~/bore
+          patch -p1 < ~/bore/patches/stable/linux-6.6-bore/0001-* 
             
       - name: Set up SukiSU
         run: |
