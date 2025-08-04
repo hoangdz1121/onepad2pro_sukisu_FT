@@ -298,13 +298,13 @@ jobs:
       - name: Create AnyKernel3 ZIP
         run: |
          cd ./AnyKernel3/
-         zip -r ./SukiSU_${{ env.KSUVER }}_一加13T.zip *
+         zip -r ./OnePlus13T_SukiSU_${{ env.KSUVER }}.zip *
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
          name: Release SukiSU_${{ env.KSUVER }}
-         body: ""
+         body: "一加13T、一加平板2Pro"
          tag_name: ${{ env.KSUVER }}
          files: ./AnyKernel3/*.zip
         env:
