@@ -1,4 +1,4 @@
-name: oneplus_13T
+name: OnePlus_13T
 on:
   workflow_dispatch:
     inputs:
@@ -298,14 +298,14 @@ jobs:
       - name: Create AnyKernel3 ZIP
         run: |
          cd ./AnyKernel3/
-         zip -r ./SukiSU_${{ env.KSUVER }}_OnePlus_13T.zip *
+         zip -r ./SukiSU_${{ env.KSUVER }}_一加13T.zip *
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-         name: OnePlus13T Release SukiSU_${{ env.KSUVER }}
+         name: Release SukiSU_${{ env.KSUVER }}
          body: ""
-         tag_name: v${{ github.run_number }}
+         tag_name: ${{ env.KSUVER }}
          files: ./AnyKernel3/*.zip
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
