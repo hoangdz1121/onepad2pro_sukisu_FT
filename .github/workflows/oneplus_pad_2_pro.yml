@@ -303,7 +303,7 @@ jobs:
       - name: Create AnyKernel3 ZIP
         run: |
          cd ./AnyKernel3/
-         zip -r ./OnePlus2Pro_SukiSU_${{ env.KSUVER }}.zip *
+         zip -r ./OnePlus_Pad2Pro_SukiSU_${{ env.KSUVER }}.zip *
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
