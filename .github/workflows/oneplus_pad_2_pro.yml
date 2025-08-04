@@ -1,34 +1,16 @@
-name: oneplus_pad_2_pro
+name: OnePlus_Pad2_Pro
 on:
   workflow_dispatch:
     inputs:
-      KERNEL_SUFFIX:
-        description: '内核名称修改(可改中文和emoji)'
-        required: true
-        default: '-酷安FutabaWa'
-      KERNEL_TIME:
-       description: "内核构建日期更改(默认为原厂)"
-       required: true
-       default: 'Wed Dec 4 02:11:46 UTC 2024'
       enable_feature_x:
-       description: "是否启用kpm"
-       required: false
-       default: false
-       type: boolean
-      enable_feature_y:
-       description: "是否启用lz4kd"
-       required: false
-       default: false
-       type: boolean
-      enable_feature_z:
-       description: "是否添加风驰驱动"
-       required: false
-       default: false
-       type: boolean
+        description: "是否启用KPM"
+        required: false
+        default: false
+        type: boolean
+  
+  schedule:
+    - cron: '0 22 * * *'
       
-       
-
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -51,14 +33,15 @@ jobs:
           
       - name: Configure Git
         run: |
-         git config --global user.name "Futaba"
-         git config --global user.email "3199167602@qq.com"
+         git config --global user.name "44C38B8"
+         git config --global user.email "b2762537725@163.com"
 
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
           sudo apt install -y python3 git curl
           sudo apt install -y python3 git curl ccache
+          sudo apt install -y zip
 
       - name: Restore ccache
         uses: actions/cache@v3
@@ -77,7 +60,7 @@ jobs:
       - name: Initialize repo and sync
         run: |
          mkdir kernel_workspace && cd kernel_workspace
-         repo init -u https://github.com/HanKuCha/kernel_manifest.git -b refs/heads/oneplus/sm8750 -m oneplus_pad_2_pro.xml --depth=1
+         repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/sm8750 -m oneplus_pad_2_pro.xml --depth=1
          repo --trace sync -c -j$(nproc --all) --no-tags
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
@@ -91,6 +74,13 @@ jobs:
          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
          export KSU_VERSION=$KSU_VERSION
          sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
+         awk -v old='v$1-$(shell cd $(srctree)/$(src); $(GIT_BIN) rev-parse --short=8 HEAD)@$(shell cd $(srctree)/$(src); $(GIT_BIN) rev-parse --abbrev-ref HEAD)' -v new='v$1-$(KSU_VERSION)-酷安@骁龙8至尊版' '
+             index($0, old) {
+                 $0 = substr($0, 1, index($0, old)-1) new substr($0, index($0, old) + length(old))
+             }
+             { print }
+         ' kernel/Makefile > kernel/Makefile.tmp && mv kernel/Makefile.tmp kernel/Makefile
+
       
         
       - name: Set up susfs
@@ -202,7 +192,6 @@ jobs:
 
  
       - name: Apply lz4kd Patches
-        if: ${{inputs.enable_feature_y }}
         run: |
           cd kernel_workspace/kernel_platform/common
             cp ../../SukiSU_patch/other/zram/zram_patch/6.6/lz4kd.patch ./
@@ -256,7 +245,7 @@ jobs:
           git add -A && git commit -a -m "BUILD Kernel"
       
       - name: Add KPM Configuration Settings
-        if: ${{inputs.enable_feature_x }}
+        if: ${{inputs.enable_feature_x}}
         run: |
           cd kernel_workspace/kernel_platform
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -270,10 +259,9 @@ jobs:
         run: |
          cd kernel_workspace/kernel_platform
          sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
-         sudo sed -i 's/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g' ./common/arch/arm64/configs/gki_defconfig
+         sudo sed -i 's/-4k/-android15-8-g302cb15749a8-ab13157299-4k/g' ./common/arch/arm64/configs/gki_defconfig
         
       - name: Add sched_ext
-        if: ${{inputs.enable_feature_z }}
         run: |
          cd kernel_workspace/kernel_platform/
          git clone https://github.com/HanKuCha/sched_ext.git
@@ -283,12 +271,12 @@ jobs:
 
       - name: Build Kernel
         run: |
-          export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
+          export KBUILD_BUILD_TIMESTAMP="Tue Mar 4 09:04:13 UTC 2025"
           export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
           export PATH="/usr/lib/ccache:$PATH"
           sudo apt install libelf-dev
           cd kernel_workspace/kernel_platform/common
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld  HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig all
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld  HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS_PERF+=-O3 gki_defconfig all
           
       - name: Apply Linux Patch
         run: |
@@ -309,5 +297,20 @@ jobs:
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-         name: SuKiSu_${{ env.KSUVER }}_oneplus_pad_2_pro
+         name: SukiSU_${{ env.KSUVER }}_OnePlus_Pad2_Pro
          path: ./AnyKernel3/*
+
+      - name: Create AnyKernel3 ZIP
+        run: |
+         cd ./AnyKernel3/
+         zip -r ./SukiSU_${{ env.KSUVER }}_一加平板2Pro.zip *
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+         name: Release SukiSU_${{ env.KSUVER }}
+         body: ""
+         tag_name: ${{ env.KSUVER }}
+         files: ./AnyKernel3/*.zip
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
