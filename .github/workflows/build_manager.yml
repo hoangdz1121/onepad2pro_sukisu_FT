@@ -93,6 +93,6 @@ jobs:
          name: Release ${{ env.DATE }}
          body: 一加13T 一加平板2Pro SukiSU_${{ env.KSU_VERSION }}
          tag_name: ${{ env.KSU_VERSION }}
-         files: *.apk
+         files: ./*.zip
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
