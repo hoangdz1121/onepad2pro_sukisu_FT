@@ -54,6 +54,7 @@ jobs:
           
           
           DOWNLOAD_URL=$(echo "$ARTIFACTS" | jq -r '.artifacts[] | select(.name == "manager") | .archive_download_url')
+          echo $DOWNLOAD_URL
 
           # 下载 Manager 文件
           curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -o "SukiSU-manager(${{ env.KSU_VERSION }}).zip" "$DOWNLOAD_URL"
