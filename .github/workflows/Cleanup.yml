@@ -8,6 +8,8 @@ on:
 jobs:
   cleanup-releases:
     runs-on: ubuntu-24.04
+    permissions: 
+      contents: write
     steps:
       - name: Delete old releases
         uses: actions/github-script@v7
