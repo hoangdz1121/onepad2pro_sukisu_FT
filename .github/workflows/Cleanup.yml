@@ -6,6 +6,7 @@ on:
   workflow_dispatch:    
 
 jobs:
+  jobs:
   cleanup-releases:
     runs-on: ubuntu-24.04
     steps:
@@ -19,40 +20,32 @@ jobs:
               per_page: 100
             });
 
-            const keep = 5; // 保留最新5个
-            const cutoffDays = 30; // 删除超过30天的
+            const keep = 6; 
+            const cutoffDays = 14; 
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - cutoffDays);
 
             for (const release of releases.slice(keep)) {
               if (new Date(release.created_at) < cutoffDate) {
+       
                 await github.rest.repos.deleteRelease({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   release_id: release.id
                 });
                 console.log(`Deleted release: ${release.name}`);
+                
+                try {
+                  await github.rest.git.deleteRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `tags/${release.tag_name}`
+                  });
+                  console.log(`Deleted tag: ${release.tag_name}`);
+                } catch (e) {
+                  console.log(`Tag not found or already deleted: ${release.tag_name}`);
+                }
               }
             }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  cleanup-tags:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Clean old tags
-        run: |
-          cutoff_date=$(date -d "14 days ago" --iso-8601=seconds)
-          git tag -l | while read tag; do
-            tag_date=$(git log -1 --format=%aI $tag)
-            if [[ $tag_date < $cutoff_date ]]; then
-              git tag -d $tag
-              git push origin :refs/tags/$tag
-            fi
-          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
