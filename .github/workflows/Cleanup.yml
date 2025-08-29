@@ -12,16 +12,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup GitHub CLI
-        uses: cli/cli-action@v2
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh jq
 
       - name: Authenticate gh
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
-      - name: Delete old releases
+      - name: Delete old releases and tags
         run: |
           cutoff=$(date -d '14 days ago' +%s)
+
           gh api repos/${{ github.repository }}/releases --paginate \
           | jq -c '.[] | {id: .id, tag_name: .tag_name, created_at: .created_at}' \
           | while read release; do
