@@ -255,6 +255,7 @@ jobs:
         if: ${{inputs.enable_feature_x}}
         run: |
           echo KPMstatus='此版本带有KPM' >> $GITHUB_ENV
+          echo KPM='with KPM' >> $GITHUB_ENV
           cd kernel_workspace/kernel_platform
           echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
          
@@ -316,9 +317,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-         name: Release ${{ env.DATE }}
+         name: Release ${{ env.DATE }}${{ env.KPM }}
          body: "一加13T 一加平板2Pro SukiSU_${{ env.KSUVER }}\n${{ env.KPMstatus }}"
-         tag_name: ${{ env.KSUVER }}
+         tag_name: ${{ env.KSUVER }}${{ env.KPM }}
          files: ./AnyKernel3/*.zip
         env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
