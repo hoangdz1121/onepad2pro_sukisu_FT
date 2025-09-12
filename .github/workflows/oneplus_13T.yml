@@ -44,6 +44,7 @@ jobs:
           sudo apt install -y zip
 
       - name: Compare Version
+        if: ${{!inputs.enable_feature_x}}
         run: |
           git clone https://github.com/SukiSU-Ultra/SukiSU-Ultra.git SUKI/
           cd SUKI
